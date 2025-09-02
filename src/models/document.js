@@ -11,25 +11,28 @@ const documentSchema = new mongoose.Schema({
   },
   keywords: {
     type: [String],
-    required: true,
+    default: [],
   },
   category: {
     type: String,
-    required: true,
-    default: 'General Legal Document',
+    default: 'General',
   },
-  summary: {
+  confidence: {
+    type: Number,
+    default: 0.0,
+  },
+  explanation: {
     type: String,
+    default: 'No explanation provided.',
+  },
+  fileSize: {
+    type: Number,
+    required: true,
   },
   uploadedAt: {
     type: Date,
     default: Date.now,
   },
-  // We can link this to a user later
-  // user: {
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: 'User'
-  // }
 });
 
 const Document = mongoose.model('Document', documentSchema);

@@ -1,72 +1,55 @@
-% --- Intelligent Legal Document Categorization Engine ---
-% This engine uses a set of rules to categorize documents based on keywords.
-% It provides a Category, a Confidence score (0.0 to 1.0), and an Explanation.
+% rules.pl
+:- use_module(library(lists)).
 
-% --- HIGH CONFIDENCE RULES (Specific Phrases or Unique Terms) ---
+% Helper: true if any option appears in Keywords
+has_keyword(Keywords, Options) :-
+    intersection(Keywords, Options, Intersection),
+    Intersection \= [].
 
-% Matches 'Criminal Law' with high confidence.
-categorize(Keywords, 'Criminal Law', 0.95, 'Contains specific criminal law terminology like "prosecution" and "offense".') :-
-    member(criminal, Keywords),
-    (member(offense, Keywords) ; member(prosecution, Keywords)).
+% --------- Specific / High-Confidence ---------
 
-% Matches 'Estate Planning/Will' with high confidence.
-categorize(Keywords, 'Estate Planning/Will', 0.95, 'Contains definitive estate planning terms like "testament" and "bequeath".') :-
-    (member(testament, Keywords), member(bequeath, Keywords)).
+categorize(K, 'Resume/CV', 0.95, 'Contains resume/CV terms such as resume, education, skills, or experience.') :-
+    has_keyword(K, [resume, curriculum_vitae, cv, education, experience, skills, qualifications, work_history, profile, summary]).
 
-% Matches 'Intellectual Property' with high confidence.
-categorize(Keywords, 'Intellectual Property', 0.90, 'Identified key intellectual property terms like "patent" or "copyright".') :-
-    (member(patent, Keywords) ; member(copyright, Keywords) ; member(trademark, Keywords)).
+categorize(K, 'Estate Planning/Will', 0.95, 'Wills & probate terms such as will, bequeath, estate, executor, or probate.') :-
+    has_keyword(K, [last_will_and_testament, will, testament, probate, codicil, bequeath, estate, executor, executrix, beneficiary]).
 
-% Matches 'Resume/CV' with high confidence (Non-legal document).
-categorize(Keywords, 'Resume/CV', 0.95, 'Document contains sections typical of a resume, such as "education" and "experience".') :-
-    member(experience, Keywords),
-    member(education, Keywords),
-    member(skills, Keywords).
+categorize(K, 'Contract/Agreement', 0.85, 'Standard contractual language like agreement, clause, termination, or NDA.') :-
+    has_keyword(K, [contract, agreement, party, parties, clause, terms, termination, force_majeure, indemnity, consideration, warranty, confidentiality, nda, non_disclosure_agreement]).
 
+categorize(K, 'Property/Real Estate', 0.85, 'Property & tenancy terms such as lease, landlord, tenant, deed, or premises.') :-
+    has_keyword(K, [property, real_estate, lease, tenancy, landlord, tenant, deed, conveyance, premises, survey_plan, certificate_of_occupancy, c_of_o, right_of_occupancy]).
 
-% --- MEDIUM CONFIDENCE RULES (Common Legal Terms) ---
+categorize(K, 'Employment Law', 0.80, 'Employment/HR terms like employee, employer, salary, or dismissal.') :-
+    has_keyword(K, [employment, employee, employer, salary, remuneration, position, role, dismissal, termination, redundancy, probation, non_compete, severance]).
 
-% Matches 'Contract/Agreement' with medium confidence.
-categorize(Keywords, 'Contract/Agreement', 0.80, 'Contains common contractual terms "agreement" and "party".') :-
-    member(agreement, Keywords),
-    member(party, Keywords).
+categorize(K, 'Intellectual Property', 0.80, 'IP terms such as patent, trademark, copyright, or infringement.') :-
+    has_keyword(K, [intellectual_property, ip, patent, trademark, trade_mark, copyright, license, licensing, infringement, prior_art, registration, trade_secret]).
 
-% Matches 'Property/Real Estate' with medium confidence.
-categorize(Keywords, 'Property/Real Estate', 0.85, 'Contains terms related to property and tenancy like "lease" and "landlord".') :-
-    member(lease, Keywords),
-    (member(landlord, Keywords) ; member(tenant, Keywords)).
+categorize(K, 'Litigation/Court', 0.75, 'Civil procedure & court filings like plaintiff, affidavit, motion, or judgment.') :-
+    has_keyword(K, [litigation, lawsuit, suit, court, plaintiff, claimant, defendant, complaint, statement_of_claim, defence, motion, affidavit, order, judgment, decree, appeal, writ, injunction]).
 
-% Matches 'Employment Law' with medium confidence.
-categorize(Keywords, 'Employment Law', 0.80, 'Contains standard employment-related terms.') :-
-    member(employment, Keywords),
-    (member(employee, Keywords) ; member(employer, Keywords)).
+categorize(K, 'Family Law', 0.75, 'Family/matrimonial terms like divorce, custody, or maintenance.') :-
+    has_keyword(K, [family_law, divorce, dissolution, custody, maintenance, alimony, child_support, adoption, paternity, guardianship, marriage, separation, prenuptial, matrimonial]).
 
-% Matches 'Litigation/Court' with medium confidence.
-categorize(Keywords, 'Litigation/Court', 0.85, 'Contains terms specific to court proceedings like "plaintiff" and "defendant".') :-
-    (member(plaintiff, Keywords), member(defendant, Keywords)).
+categorize(K, 'Criminal Law', 0.90, 'Criminal proceedings like charge, offense/offence, prosecution, or sentence.') :-
+    has_keyword(K, [criminal, crime, charge, offense, offence, prosecution, defendant, sentence, arraignment, conviction, bail]).
 
+categorize(K, 'Tax Law', 0.75, 'Taxation & revenue terms such as tax, vat, paye, or assessment.') :-
+    has_keyword(K, [tax, taxation, revenue, vat, paye, withholding_tax, stamp_duty, capital_gains_tax, assessment, audit, return, compliance, exemption]).
 
-% --- LOWER CONFIDENCE RULES (Broader Terms) ---
+categorize(K, 'Insurance', 0.70, 'Insurance policy & claims terms like policy, premium, indemnity, or coverage.') :-
+    has_keyword(K, [insurance, insurer, insured, policy, premium, claim, claims, indemnity, coverage, risk, reinsurance, subrogation, exclusion, beneficiary, broker]).
 
-% Matches 'Family Law' with lower confidence.
-categorize(Keywords, 'Family Law', 0.70, 'Contains broad family-related legal terms.') :-
-    (member(divorce, Keywords) ; member(custody, Keywords) ; member(marriage, Keywords)).
+categorize(K, 'Banking/Finance', 0.60, 'Financial/banking terms such as loan, mortgage, collateral, or repayment.') :-
+    has_keyword(K, [bank, banking, finance, financial, loan, credit, facility, mortgage, charge_over_assets, security, collateral, guarantee, repayment, interest, account, remittance, payment]).
 
-% Matches 'Tax Law' with lower confidence.
-categorize(Keywords, 'Tax Law', 0.75, 'Contains financial terms related to taxation.') :-
-    member(tax, Keywords),
-    member(revenue, Keywords).
+categorize(K, 'Corporate/Business', 0.60, 'Corporate governance/business terms like company, shares, board, or resolution.') :-
+    has_keyword(K, [corporate, business, company, shares, shareholding, bylaws, articles_of_association, memorandum, resolution, board, director, shareholder, minutes, incorporation, company_secretary]).
 
-% Matches 'Insurance' with lower confidence.
-categorize(Keywords, 'Insurance', 0.75, 'Contains terms related to insurance policies.') :-
-    member(insurance, Keywords),
-    member(policy, Keywords).
+categorize(K, 'Research/Brief', 0.80, 'Legal research or briefing structure (IRAC, memo, authorities).') :-
+    has_keyword(K, [research, memo, memorandum, brief, legal_brief, argument, authorities, case_law, precedent, statute, analysis, summary, issue, facts, conclusion, irac]).
 
-% Matches 'Banking/Finance' with lower confidence.
-categorize(Keywords, 'Banking/Finance', 0.70, 'Contains general banking or finance terms.') :-
-    (member(loan, Keywords) ; member(credit, Keywords)).
+% --------- Final Fallback ---------
 
-
-% --- DEFAULT FALLBACK RULE ---
-% This rule MUST be last. It catches anything that doesn't match above.
-categorize(_, 'General Legal Document', 0.30, 'The document does not contain specific keywords to match a defined category.').
+categorize(_, 'General Legal Document', 0.30, 'No specific keywords matched, classified as general.').

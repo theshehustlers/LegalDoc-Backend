@@ -1,5 +1,5 @@
-import PDFDocument from 'pdfkit';
 import Document from '../models/document.js';
+import PDFDocument from 'pdfkit';
 
 
 /**
@@ -7,50 +7,51 @@ import Document from '../models/document.js';
  */
 export const exportDocumentAsPDF = async (req, res) => {
   try {
-    const document = await Document.findById(req.params.id);
-    if (!document) {
-      return res.status(404).json({ message: 'Document not found.' });
-    }
+    const d = await Document.findById(req.params.id);
+    if (!d) return res.status(404).json({ message: 'Document not found.' });
+
+    const safeName = (d.filename || 'report').replace(/\.[^/.]+$/, '');
+    res.status(200);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${safeName}-analysis.pdf"`);
+    res.setHeader('Cache-Control', 'no-store');
 
     const doc = new PDFDocument({ margin: 50 });
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${document.filename.replace(/\.[^/.]+$/, "")}-analysis.pdf"`);
+
+    doc.on('error', (err) => {
+      console.error('PDFKit error:', err);
+      try { res.end(); } catch {}
+    });
+    res.on('close', () => { try { doc.destroy(); } catch {} });
+
     doc.pipe(res);
 
-    doc.fontSize(24).font('Helvetica-Bold').text('Legal Document Analysis Report', { align: 'center' });
+    doc.fontSize(20).font('Helvetica-Bold').text('Legal Document Analysis Report', { align: 'center' });
     doc.moveDown(2);
 
-    doc.fontSize(16).font('Helvetica-Bold').text('Document Details');
-    doc.fontSize(12).font('Helvetica').text(`Original Filename: ${document.filename}`);
-    doc.text(`Analyzed On: ${new Date(document.uploadedAt).toLocaleString()}`);
-    if(document.fileSize) {
-        doc.text(`File Size: ${(document.fileSize / 1024).toFixed(2)} KB`);
-    }
+    doc.fontSize(14).font('Helvetica-Bold').text('Document Overview');
+    doc.fontSize(12).font('Helvetica').text(`Filename: ${d.filename}`);
+    if (d.fileSize) doc.text(`File Size: ${(d.fileSize / 1024).toFixed(2)} KB`);
+    doc.text(`Analyzed On: ${new Date(d.uploadedAt).toLocaleString()}`);
     doc.moveDown();
 
-    doc.fontSize(16).font('Helvetica-Bold').text('Analysis Results');
-    doc.fontSize(12).font('Helvetica-Bold').text('Detected Category: ').font('Helvetica').text(document.category);
-    if (document.confidence) {
-        doc.fontSize(12).font('Helvetica-Bold').text('Confidence Score: ').font('Helvetica').text(`${Math.round(document.confidence * 100)}%`);
-    }
-     if (document.explanation) {
-        doc.fontSize(12).font('Helvetica-Bold').text('Reasoning: ').font('Helvetica').text(document.explanation);
-    }
+    doc.fontSize(14).font('Helvetica-Bold').text('AI Analysis');
+    doc.fontSize(12).font('Helvetica').text(`Detected Category: ${d.category}`);
+    if (typeof d.confidence === 'number') doc.text(`Confidence Score: ${Math.round(d.confidence * 100)}%`);
+    if (d.explanation) doc.text(`Reasoning: ${d.explanation}`);
     doc.moveDown();
 
     doc.fontSize(14).font('Helvetica-Bold').text('Extracted Keywords');
-    doc.fontSize(10).font('Helvetica').list(document.keywords || [], { bulletRadius: 2 });
+    doc.fontSize(10).font('Helvetica').list(d.keywords || [], { bulletRadius: 2 });
     doc.moveDown();
 
     doc.fontSize(14).font('Helvetica-Bold').text('Content Snippet');
-    doc.fontSize(10).font('Helvetica').text((document.original_content || '').substring(0, 1500) + '...', {
-      align: 'justify'
-    });
-    
-    doc.end();
+    doc.fontSize(10).font('Helvetica').text(((d.original_content || '') + '').slice(0, 1500) + (d.original_content?.length > 1500 ? '…' : ''), { align: 'justify' });
 
+    doc.end(); // never call res.end() yourself
   } catch (error) {
     console.error('Error exporting PDF:', error);
-    res.status(500).json({ message: 'Server error during PDF export.' });
+    if (!res.headersSent) return res.status(500).json({ message: 'Server error during PDF export.' });
+    try { res.end(); } catch {}
   }
 };
