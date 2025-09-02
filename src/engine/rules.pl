@@ -1,11 +1,15 @@
 % rules.pl
 :- use_module(library(lists)).
 
-% Helper: true if any option appears in Keywords
-has_keyword(Keywords, Options) :-
-    intersection(Keywords, Options, Intersection),
-    Intersection \= [].
+% --- helpers ---
+has_any(KWs, Options) :-
+  intersection(KWs, Options, I),
+  I \= [].
 
+has_n_of(KWs, Options, N) :-
+  intersection(KWs, Options, I),
+  length(I, L),
+  L >= N.
 % --------- Specific / High-Confidence ---------
 
 % New Research/Brief rule (catches methodology docs like your sample)
