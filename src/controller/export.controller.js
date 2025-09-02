@@ -1,7 +1,5 @@
 import Document from '../models/document.js';
 import PDFDocument from 'pdfkit';
-
-
 /**
  * Generates and sends a PDF analysis report for a given document ID.
  */
