@@ -1,4 +1,3 @@
-// src/db/connectDB.js (or your existing path)
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
@@ -21,11 +20,10 @@ const connectDB = async () => {
 
   try {
     await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 15000, // fail fast with clearer error
-      family: 4,                       // force IPv4 to avoid SRV AAAA issues
+      serverSelectionTimeoutMS: 15000,
+      family: 4,
     });
 
-    // 3) Verify with a ping
     await mongoose.connection.db.admin().command({ ping: 1 });
     const { host, name: dbName } = mongoose.connection;
     console.log(`✅ MongoDB connected & ping OK (host=${host}, db=${dbName})`);
