@@ -1,6 +1,7 @@
 import express from 'express';
 import documentRoutes from './src/routes/document.routes.js'
 import exportRoutes from './src/routes/export.routes.js'
+import preferencesRoutes from './src/routes/preferences.routes.js'
 import connectDB from './src/config/db.js';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -47,6 +48,8 @@ app.use('/api/documents', documentRoutes);
 // export-related routes
 app.use('/api/export', exportRoutes);
 
+// User preferences routes
+app.use("/api/preferences", preferencesRoutes);
 
 // Start the Server
 app.listen(PORT, () => {
