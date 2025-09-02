@@ -1,5 +1,5 @@
 import express from 'express';
-import { exportDocumentAsPDF } from '../controller/export.controller.js';
+import {exportDocumentAsPDF} from "../controller/export.controller.js"
 
 const router = express.Router();
 

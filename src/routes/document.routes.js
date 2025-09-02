@@ -9,7 +9,8 @@ import {
     analyzeDocument, 
     getAllDocuments, 
     getDocumentById, 
-    deleteDocumentById 
+    deleteDocumentById,
+    deleteAllDocuments,
 } from '../controller/document.controller.js';
 
 const router = express.Router();
@@ -35,5 +36,10 @@ router.get('/:id', getDocumentById);
 // DELETE /api/documents/:id
 // Deletes a single document by its unique ID.
 router.delete('/:id', deleteDocumentById);
+// Deletes all documents
+router.delete('/', deleteAllDocuments);
+
+// // Export document analysis as PDF
+// router.get('/:id', exportDocumentAsPDF);
 
 export default router;
