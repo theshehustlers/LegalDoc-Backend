@@ -2,7 +2,7 @@ import express from 'express';
 import documentRoutes from './src/routes/document.routes.js'
 import exportRoutes from './src/routes/export.routes.js'
 import preferencesRoutes from './src/routes/preferences.routes.js'
-import connectDB from './src/config/db.js';
+import { ConnectDb } from './src/config/db.js';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
@@ -34,7 +34,7 @@ app.use(express.json());
 
 
 // Database Connection
-connectDB();
+ConnectDb();
 
 
 // API Routes
