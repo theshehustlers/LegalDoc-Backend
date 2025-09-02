@@ -8,14 +8,30 @@ has_keyword(Keywords, Options) :-
 
 % --------- Specific / High-Confidence ---------
 
-categorize(K, 'Resume/CV', 0.95, 'Contains resume/CV terms such as resume, education, skills, or experience.') :-
-    has_keyword(K, [resume, curriculum_vitae, cv, education, experience, skills, qualifications, work_history, profile, summary]).
+% New Research/Brief rule (catches methodology docs like your sample)
+categorize(K, 'Research/Brief', 0.85,
+  'Contains research methodology/analysis/reporting terminology.') :-
+    has_any(K, [research, methodology, analysis, findings, questionnaire, survey, interview, observation, literature, data, sampling, hypothesis, results, discussion]).
+
+
+% Resume/CV must NOT look like a contract
+categorize(K, 'Resume/CV', 0.92,
+  'Contains CV/resume signals without contract cues.') :-
+    (
+      has_any(K, [resume, curriculum_vitae])
+      ;
+      has_n_of(K, [education, experience, skills, qualifications], 2)
+    ),
+    \+ has_any(K, [contract, agreement, party, parties, clause, termination]).
 
 categorize(K, 'Estate Planning/Will', 0.95, 'Wills & probate terms such as will, bequeath, estate, executor, or probate.') :-
     has_keyword(K, [last_will_and_testament, will, testament, probate, codicil, bequeath, estate, executor, executrix, beneficiary]).
 
-categorize(K, 'Contract/Agreement', 0.85, 'Standard contractual language like agreement, clause, termination, or NDA.') :-
-    has_keyword(K, [contract, agreement, party, parties, clause, terms, termination, force_majeure, indemnity, consideration, warranty, confidentiality, nda, non_disclosure_agreement]).
+% Stronger Contract rule comes BEFORE resume to take precedence
+categorize(K, 'Contract/Agreement', 0.88,
+  'Contains agreement/contract language with parties/clauses/termination.') :-
+has_any(K, [contract, agreement]),
+    has_any(K, [party, parties, clause, termination, consideration, covenant]).
 
 categorize(K, 'Property/Real Estate', 0.85, 'Property & tenancy terms such as lease, landlord, tenant, deed, or premises.') :-
     has_keyword(K, [property, real_estate, lease, tenancy, landlord, tenant, deed, conveyance, premises, survey_plan, certificate_of_occupancy, c_of_o, right_of_occupancy]).
