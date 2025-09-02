@@ -24,18 +24,14 @@ const corsOptions = {
 };
 
 // Middleware Setup (ORDER IS CRITICAL)
-
 // The CORS middleware MUST be the very first middleware loaded.
-// It will correctly handle all preflight (OPTIONS) requests.
 app.use(cors(corsOptions));
 
 // Now, other middleware like the JSON parser can be loaded.
 app.use(express.json());
 
-
 // Database Connection
 ConnectDb();
-
 
 // API Routes
 app.get('/', (req, res) => {
