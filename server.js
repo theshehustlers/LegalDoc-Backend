@@ -9,7 +9,7 @@ import dotenv from 'dotenv';
 // Initial Setup
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5006;
 
 // CORS Configuration
 const allowedOrigins = [
@@ -48,7 +48,6 @@ app.use('/api/export', exportRoutes);
 app.use("/api/preferences", preferencesRoutes);
 
 // Start the Server
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is listening on http://localhost:${PORT}`);
 });
-
