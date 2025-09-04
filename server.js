@@ -14,7 +14,8 @@ const PORT = process.env.PORT || 5006;
 // CORS Configuration
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://68af8ed891f0344fdfb4c455--legaldocc.netlify.app'
+  'https://68af8ed891f0344fdfb4c455--legaldocc.netlify.app',
+  ''
 ];
 const corsOptions = {
   origin: allowedOrigins,
